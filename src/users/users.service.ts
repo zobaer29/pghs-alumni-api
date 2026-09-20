@@ -105,6 +105,7 @@ export class UsersService {
       user: {
         id: updatedUser.id,
         email: updatedUser.email,
+        emailVerified: updatedUser.emailVerified,
         role: updatedUser.role,
         status: updatedUser.status,
         profile: updatedUser.profile,

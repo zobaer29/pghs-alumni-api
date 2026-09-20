@@ -48,6 +48,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        emailVerified: user.emailVerified,
         role: user.role,
         status: user.status,
         profile: user.profile,
@@ -86,6 +87,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        emailVerified: user.emailVerified,
         role: user.role,
         status: user.status,
         profile: user.profile,
