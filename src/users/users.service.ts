@@ -80,6 +80,7 @@ export class UsersService {
       where: { id: targetUserId },
       data: {
         status: dto.status,
+        emailVerified: isApproval ? true : undefined,
         profile: {
           update: {
             verifiedAlumni: isApproval ? true : undefined,
