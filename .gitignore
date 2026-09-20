@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+
+# NestJS / TypeScript build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local files
+*.log
+*.pem
+.DS_Store

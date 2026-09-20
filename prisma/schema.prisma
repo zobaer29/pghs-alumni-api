@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+  REJECTED
+}
+
+enum PostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum GuestMessageStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  role          Role       @default(MEMBER)
+  status        UserStatus @default(PENDING)
+  emailVerified Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  profile   Profile?
+  posts     Post[]
+  auditLogs ActorAuditLog[]
+}
+
+model Profile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  fullName       String
+  batchYear      Int
+  rollNumber     String?
+  bio            String?
+  photoUrl       String?
+  coverPhotoUrl  String?
+  occupation     String?
+  organization   String?
+  city           String?
+  country        String?
+  skills         String[]
+  linkedinUrl    String?
+  facebookUrl    String?
+  isMentor       Boolean  @default(false)
+  verifiedAlumni Boolean  @default(false)
+  hidePhone      Boolean  @default(true)
+  hideEmail      Boolean  @default(true)
+  phone          String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([batchYear])
+  @@index([isMentor])
+}
+
+model Post {
+  id           String     @id @default(cuid())
+  authorId     String
+  content      String
+  imageUrl     String?
+  status       PostStatus @default(PENDING)
+  reviewedById String?
+  reviewNote   String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([authorId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  location    String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  coverUrl    String?
+  images      String[] @default([])
+  youtubeUrl  String?
+  createdById String
+  createdAt   DateTime @default(now())
+
+  @@index([startsAt])
+}
+
+model Campaign {
+  id           String    @id @default(cuid())
+  title        String
+  description  String    @db.Text
+  goalAmount   Int?
+  raisedAmount Int       @default(0)
+  startsAt     DateTime
+  endsAt       DateTime?
+  coverUrl     String?
+  images       String[]  @default([])
+  youtubeUrl   String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+}
+
+model GuestMessage {
+  id          String             @id @default(cuid())
+  name        String
+  email       String
+  message     String             @db.Text
+  status      GuestMessageStatus @default(NEW)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  resolvedAt  DateTime?
+  resolvedBy  String?
+
+  @@index([status, createdAt])
+}
+
+model ActorAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String   // e.g. MEMBER_APPROVED, POST_APPROVED, USER_SUSPENDED
+  targetType String
+  targetId   String
+  note       String?
+  createdAt  DateTime @default(now())
+
+  actor User @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+}
